@@ -1,7 +1,8 @@
 package vfv9w6.headsetcall.data
 
-class Contact(
-        val name: String,
-        val phoneNumber: String,
-        val pressCount: Int
-)
+import com.orm.SugarRecord
+
+class Contact(val name: String = "",
+              val phoneNumber: String = "",
+              val pressCount: Int = 0): SugarRecord()
+
