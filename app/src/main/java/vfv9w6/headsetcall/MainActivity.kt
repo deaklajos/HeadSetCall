@@ -1,33 +1,39 @@
 package vfv9w6.headsetcall
 
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.LinearLayout
-import android.widget.Toast
+import android.widget.NumberPicker
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.dialog_set_press_count.*
+import kotlinx.android.synthetic.main.dialog_set_press_count.view.*
 import vfv9w6.headsetcall.adapter.ContactRecyclerViewAdapter
 import vfv9w6.headsetcall.data.Contact
 
 
 class MainActivity : AppCompatActivity() {
 
+
     companion object {
         private const val SELECT_PHONE_NUMBER = 1
     }
 
-    private val adapter = ContactRecyclerViewAdapter()
+    private lateinit var adapter: ContactRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+        //TODO maybe not here
+        adapter = ContactRecyclerViewAdapter(this)
         rc_contact_list.adapter = adapter
         rc_contact_list.layoutManager = LinearLayoutManager(this)
 
@@ -56,11 +62,8 @@ class MainActivity : AppCompatActivity() {
                 val number = cursor.getString(numberIndex)
                 val name = cursor.getString(nameIndex)
 
-                val contact = Contact(name, number, 0)
-                adapter.addItem(contact)
-
-                // Do something with the phone number
-                //Toast.makeText(this, "$name: $number", Toast.LENGTH_LONG).show()
+                // TODO put it outside and close cursor
+                showNumberPickerDialog(name, number)
             }
 
             //TODO proper null check
@@ -68,6 +71,26 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+    private fun showNumberPickerDialog(name: String, number: String)
+    {
+        val dialog = Dialog(this)
+        val view = LayoutInflater.from(this).inflate(R.layout.dialog_set_press_count, null, false)
+        //TODO values
+        view.np_press_count.minValue = 0
+        view.np_press_count.maxValue = 3
+        view.np_press_count.displayedValues = arrayOf("1", "2", "3", "4")
+
+        view.btn_ok.setOnClickListener {
+            //TODO convert
+            val contact = Contact(name, number, view.np_press_count.value)
+            adapter.addItem(contact)
+            dialog.dismiss()
+        }
+        dialog.setContentView(view)
+        dialog.show()
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
