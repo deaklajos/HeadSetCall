@@ -76,14 +76,17 @@ class MainActivity : AppCompatActivity() {
     {
         val dialog = Dialog(this)
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_set_press_count, null, false)
-        //TODO values
+        val values = ArrayList<String>()
+        adapter.availablePresses.forEach{
+            values.add(it.toString())
+        }
         view.np_press_count.minValue = 0
-        view.np_press_count.maxValue = 3
-        view.np_press_count.displayedValues = arrayOf("1", "2", "3", "4")
+        view.np_press_count.maxValue = values.size - 1
+        view.np_press_count.displayedValues = values.toTypedArray()
 
         view.btn_ok.setOnClickListener {
-            //TODO convert
-            val contact = Contact(name, number, view.np_press_count.value)
+            val presses = adapter.availablePresses[view.np_press_count.value]
+            val contact = Contact(name, number, presses)
             adapter.addItem(contact)
             dialog.dismiss()
         }

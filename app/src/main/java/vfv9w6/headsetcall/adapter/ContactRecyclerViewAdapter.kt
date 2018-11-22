@@ -13,14 +13,21 @@ import vfv9w6.headsetcall.R
 import vfv9w6.headsetcall.data.Contact
 
 class ContactRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<ContactRecyclerViewAdapter.ViewHolder>() {
+    private val contactList: ArrayList<Contact>
+    val availablePresses: ArrayList<Int>
+    var itemClickListener: ContactItemClickListener? = null
 
     init {
-        //TODO should call somewhere else
-        SugarContext.init(context)
+        //TODO should call somewhere else maybe
+        SugarContext.init(context) //TODO call terminate too
+        contactList = ArrayList(SugarRecord.listAll(Contact::class.java))
+        availablePresses = ArrayList()
+        availablePresses.addAll(listOf(1, 2, 3, 4, 5, 6, 7, 8, 9))
+        contactList.forEach {
+            availablePresses.remove(it.pressCount) }
     }
-    private val contactList = SugarRecord.listAll(Contact::class.java)
 
-    var itemClickListener: ContactItemClickListener? = null
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -41,6 +48,7 @@ class ContactRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<Contac
     fun addItem(contact: Contact) {
         val size = contactList.size
         contactList.add(contact)
+        availablePresses.remove(contact.pressCount)
         contact.save()
         notifyItemInserted(size)
     }
@@ -53,6 +61,8 @@ class ContactRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<Contac
 
     fun deleteRow(position: Int) {
         contactList[position].delete()
+        //TODO sort
+        availablePresses.add(contactList[position].pressCount)
         contactList.removeAt(position)
         notifyItemRemoved(position)
     }
