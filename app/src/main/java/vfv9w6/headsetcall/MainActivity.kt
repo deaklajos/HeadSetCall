@@ -4,21 +4,17 @@ import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.NumberPicker
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import kotlinx.android.synthetic.main.dialog_set_press_count.*
 import kotlinx.android.synthetic.main.dialog_set_press_count.view.*
 import vfv9w6.headsetcall.adapter.ContactRecyclerViewAdapter
 import vfv9w6.headsetcall.data.Contact
-import android.support.design.widget.Snackbar
-
-
 
 
 class MainActivity : AppCompatActivity() {

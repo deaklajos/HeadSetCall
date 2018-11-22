@@ -4,6 +4,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!--Add description-->
+
     <NumberPicker
         android:id="@+id/np_press_count"
         android:layout_width="match_parent"
