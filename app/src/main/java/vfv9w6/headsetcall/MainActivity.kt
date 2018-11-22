@@ -16,6 +16,9 @@ import kotlinx.android.synthetic.main.dialog_set_press_count.*
 import kotlinx.android.synthetic.main.dialog_set_press_count.view.*
 import vfv9w6.headsetcall.adapter.ContactRecyclerViewAdapter
 import vfv9w6.headsetcall.data.Contact
+import android.support.design.widget.Snackbar
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -38,6 +41,12 @@ class MainActivity : AppCompatActivity() {
         rc_contact_list.layoutManager = LinearLayoutManager(this)
 
         fab.setOnClickListener {
+            if(adapter.availablePresses.size == 0)
+            {
+                Snackbar.make(main_layout, "Remove a contact before adding a new one!", Snackbar.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE
             startActivityForResult(intent, SELECT_PHONE_NUMBER)
