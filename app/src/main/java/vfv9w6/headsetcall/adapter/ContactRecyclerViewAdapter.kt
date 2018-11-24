@@ -11,6 +11,7 @@ import com.orm.SugarRecord
 import kotlinx.android.synthetic.main.contact_row.view.*
 import vfv9w6.headsetcall.R
 import vfv9w6.headsetcall.data.Contact
+import java.util.*
 
 class ContactRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<ContactRecyclerViewAdapter.ViewHolder>() {
     private val contactList: ArrayList<Contact>
@@ -45,12 +46,25 @@ class ContactRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<Contac
         holder.tvPressCount.text = contact.pressCount.toString()
     }
 
-    fun addItem(contact: Contact) {
+    private fun addItem(contact: Contact) {
         val size = contactList.size
         contactList.add(contact)
         availablePresses.remove(contact.pressCount)
         contact.save()
         notifyItemInserted(size)
+    }
+
+    fun addOrModifyItem(contact: Contact, previousPressCount: Int) {
+        if(!contactList.contains(contact))
+            addItem(contact)
+        else
+        {
+            availablePresses.remove(contact.pressCount)
+            availablePresses.add(previousPressCount)
+            availablePresses.sort()
+            contact.save()
+            notifyItemChanged(contactList.indexOf(contact))
+        }
     }
 
 //    fun addAll(contacts: List<Contact>) {
@@ -61,10 +75,14 @@ class ContactRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<Contac
 
     fun deleteRow(position: Int) {
         contactList[position].delete()
-        //TODO sort
         availablePresses.add(contactList[position].pressCount)
+        availablePresses.sort()
         contactList.removeAt(position)
         notifyItemRemoved(position)
+    }
+
+    fun deleteContact(contact: Contact) {
+        deleteRow(contactList.indexOf(contact))
     }
 
     override fun getItemCount() = contactList.size
@@ -77,20 +95,15 @@ class ContactRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<Contac
         var contact: Contact? = null
 
         init {
-            itemView.setOnClickListener {
-                contact?.let { itemClickListener?.onItemClick(it) }
-            }
-
             itemView.setOnLongClickListener { clickedView ->
-                itemClickListener?.onItemLongClick(adapterPosition, clickedView)
+                contact?.let { itemClickListener?.onItemLongClick(clickedView, it) }
                 true
             }
         }
     }
 
     interface ContactItemClickListener {
-        fun onItemClick(contact: Contact)
-        fun onItemLongClick(position: Int, view: View): Boolean
+        fun onItemLongClick(view: View, contact: Contact): Boolean
     }
 
 }
