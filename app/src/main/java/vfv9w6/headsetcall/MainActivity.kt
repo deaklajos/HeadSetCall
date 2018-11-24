@@ -81,19 +81,18 @@ class MainActivity : AppCompatActivity(), ContactRecyclerViewAdapter.ContactItem
                     null, null, null)
 
             // If the cursor returned is valid, get the phone number
-            if (cursor != null && cursor.moveToFirst()) {
+            if (cursor != null && cursor.moveToFirst())
+            {
                 val numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
                 val nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
                 val number = cursor.getString(numberIndex)
                 val name = cursor.getString(nameIndex)
+                cursor.close()
 
                 val contact = Contact(name, number, 0)
-                // TODO put it outside and close cursor
                 showNumberPickerDialog(contact)
             }
 
-            //TODO proper null check
-            cursor.close()
         }
 
     }
