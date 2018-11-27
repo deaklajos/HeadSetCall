@@ -4,7 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!--Add description-->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25sp"
+        android:text="@string/dialog_label"/>
 
     <NumberPicker
         android:id="@+id/np_press_count"
