@@ -2,9 +2,14 @@ package vfv9w6.headsetcall
 
 import android.app.Dialog
 import android.content.Intent
+import android.media.session.MediaSession
+import android.media.session.MediaSession.Callback
+import android.media.session.PlaybackState
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.support.design.widget.Snackbar
+import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
@@ -12,6 +17,7 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.dialog_set_press_count.view.*
@@ -43,7 +49,9 @@ class MainActivity : AppCompatActivity(), ContactRecyclerViewAdapter.ContactItem
         private const val SELECT_PHONE_NUMBER = 1
     }
 
+    //TODO not lateinit
     private lateinit var adapter: ContactRecyclerViewAdapter
+    private lateinit var mediaSession: MediaSession
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +75,41 @@ class MainActivity : AppCompatActivity(), ContactRecyclerViewAdapter.ContactItem
             intent.type = ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE
             startActivityForResult(intent, SELECT_PHONE_NUMBER)
         }
+
+        val callback = object : MediaSession.Callback() {
+
+            override fun onPlay() {
+                Toast.makeText(this@MainActivity, "GITGUDSCRUB", Toast.LENGTH_LONG).show()
+            }
+
+            override fun onPause() {
+                super.onPause()
+                Toast.makeText(this@MainActivity, "GITGUDSCRUB", Toast.LENGTH_LONG).show()
+            }
+
+            override fun onStop() {
+                super.onStop()
+                Toast.makeText(this@MainActivity, "GITGUDSCRUB", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        mediaSession = MediaSession(applicationContext, "MYMS")
+
+        //TODO remove this!
+        mediaSession.setFlags(
+                MediaSession.FLAG_HANDLES_MEDIA_BUTTONS or MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS)
+        mediaSession.setCallback(callback)
+
+        mediaSession.setPlaybackState(
+                 PlaybackState.Builder().setActions(PlaybackState.ACTION_PLAY or
+                         PlaybackState.ACTION_PAUSE or
+                        PlaybackState.ACTION_PLAY_PAUSE)
+        .setState(PlaybackState.STATE_PLAYING,
+                0,
+                1f).build())
+        mediaSession.isActive = true
+
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
