@@ -1,32 +1,62 @@
 package vfv9w6.headsetcall
 
+import android.Manifest
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
+import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.speech.tts.TextToSpeech
 import android.speech.tts.TextToSpeech.OnInitListener
+import android.speech.tts.UtteranceProgressListener
 import android.support.annotation.RequiresApi
 import android.support.v4.app.NotificationCompat
+import android.support.v4.content.ContextCompat
 import android.widget.Toast
 import com.orm.SugarRecord
 import com.orm.util.NamingHelper
 import vfv9w6.headsetcall.data.Contact
 import vfv9w6.headsetcall.model.PressCounter
 import java.util.*
+import com.intentfilter.androidpermissions.PermissionManager
+import java.util.Collections.singleton
+
 
 class CallerService : Service() {
 
     private lateinit var mediaSession: MediaSession
     private val pressCounter = PressCounter(1000, Runnable{ callCounted()})
     private var textToSpeech: TextToSpeech? = null
+    private var contact: Contact? = null
 
     override fun onBind(intent: Intent): IBinder {
         TODO("Return the communication channel to the service.")
+    }
+
+    private fun callContact()
+    {
+        if(contact == null)
+            return
+
+        if(ContextCompat.checkSelfPermission( this, android.Manifest.permission.CALL_PHONE ) != PackageManager.PERMISSION_GRANTED )
+        {
+            val permissionManager = PermissionManager.getInstance(applicationContext)
+            permissionManager.checkPermissions(singleton(Manifest.permission.CALL_PHONE), object : PermissionManager.PermissionRequestListener {
+                override fun onPermissionGranted() {}
+                override fun onPermissionDenied() {}
+            })
+
+            return // Next time we can call
+        }
+        val intent = Intent(Intent.ACTION_CALL)
+
+        intent.data = Uri.parse("tel:" + contact!!.phoneNumber)
+        applicationContext.startActivity(intent)
     }
 
     private fun callCounted() {
@@ -36,13 +66,17 @@ class CallerService : Service() {
                 pressCounter.getPressCount().toString())
         if(list.size > 0)
         {
-            val contact = list[0]
-            textToSpeech?.speak(getString(R.string.speech_calling) + contact.name,
+            contact = list[0]
+            textToSpeech?.speak(getString(R.string.speech_calling) + contact!!.name,
                     TextToSpeech.QUEUE_FLUSH, null, "")
         }
         else
+        {
+            contact = null
             textToSpeech?.speak(getString(R.string.speech_error),
                     TextToSpeech.QUEUE_FLUSH, null, "")
+        }
+
     }
 
     override fun onCreate() {
@@ -51,8 +85,17 @@ class CallerService : Service() {
         startForeground()
 
         textToSpeech = TextToSpeech(applicationContext, OnInitListener {status ->
-            if (status != TextToSpeech.ERROR)
+            if (status == TextToSpeech.SUCCESS)
+            {
                 textToSpeech?.language = Locale.UK
+                textToSpeech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+
+                    override fun onDone(utteranceId: String?) = callContact()
+                    override fun onError(utteranceId: String?) {}
+                    override fun onStart(utteranceId: String?) {}
+                })
+            }
+
         })
 
         Toast.makeText(applicationContext, getString(R.string.service_created), Toast.LENGTH_SHORT).show()
@@ -114,9 +157,9 @@ class CallerService : Service() {
     }
 
     override fun onDestroy() {
-
-        textToSpeech?.stop()
-        textToSpeech?.shutdown()
+        textToSpeech?.apply {
+            stop()
+            shutdown()}
 
         mediaSession.release()
         Toast.makeText(applicationContext, getString(R.string.service_destroyed), Toast.LENGTH_SHORT).show()

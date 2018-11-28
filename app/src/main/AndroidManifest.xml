@@ -3,6 +3,7 @@
     package="vfv9w6.headsetcall">
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <!-- TODO do something about this warning -->
     <application
