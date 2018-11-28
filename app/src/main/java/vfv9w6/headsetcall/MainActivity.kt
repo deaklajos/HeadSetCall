@@ -2,14 +2,9 @@ package vfv9w6.headsetcall
 
 import android.app.Dialog
 import android.content.Intent
-import android.media.session.MediaSession
-import android.media.session.MediaSession.Callback
-import android.media.session.PlaybackState
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.support.design.widget.Snackbar
-import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
@@ -17,7 +12,6 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.dialog_set_press_count.view.*
