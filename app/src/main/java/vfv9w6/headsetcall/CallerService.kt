@@ -19,8 +19,6 @@ import vfv9w6.headsetcall.data.Contact
 import vfv9w6.headsetcall.model.PressCounter
 import java.util.*
 
-
-//TODO this maybe gets closed after some time.
 class CallerService : Service() {
 
     private lateinit var mediaSession: MediaSession
@@ -39,10 +37,12 @@ class CallerService : Service() {
         if(list.size > 0)
         {
             val contact = list[0]
-            textToSpeech?.speak("Calling " + contact.name, TextToSpeech.QUEUE_FLUSH, null, "")
+            textToSpeech?.speak(getString(R.string.speech_calling) + contact.name,
+                    TextToSpeech.QUEUE_FLUSH, null, "")
         }
         else
-            textToSpeech?.speak("Beep!", TextToSpeech.QUEUE_FLUSH, null, "")
+            textToSpeech?.speak(getString(R.string.speech_error),
+                    TextToSpeech.QUEUE_FLUSH, null, "")
     }
 
     override fun onCreate() {
@@ -55,8 +55,7 @@ class CallerService : Service() {
                 textToSpeech?.language = Locale.UK
         })
 
-        //TODO refactor yaalls and extract!
-        Toast.makeText(applicationContext, "imStartedYall", Toast.LENGTH_SHORT).show()
+        Toast.makeText(applicationContext, getString(R.string.service_created), Toast.LENGTH_SHORT).show()
 
         val callback = object : MediaSession.Callback() {
             override fun onPlay() = pressCounter.press()
@@ -98,7 +97,7 @@ class CallerService : Service() {
         val notification = NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("HeadSetCall")
-                .setContentText("Ready for directions...")
+                .setContentText(getString(R.string.notification_text))
                 .setContentIntent(pendingIntent).build()
         startForeground(1, notification)
     }
@@ -120,7 +119,7 @@ class CallerService : Service() {
         textToSpeech?.shutdown()
 
         mediaSession.release()
-        Toast.makeText(applicationContext, "imDeadYall", Toast.LENGTH_SHORT).show()
+        Toast.makeText(applicationContext, getString(R.string.service_destroyed), Toast.LENGTH_SHORT).show()
         super.onDestroy()
     }
 }

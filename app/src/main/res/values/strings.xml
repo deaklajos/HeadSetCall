@@ -13,4 +13,9 @@
     <string name="menu_modify">Modify</string>
     <string name="dialog_label">Choose the count of presses!</string>
     <string name="action_stop">Stop</string>
+    <string name="speech_calling">Calling</string>
+    <string name="speech_error">Beep!</string>
+    <string name="service_created">Ready to Go!</string>
+    <string name="service_destroyed">Bye!</string>
+    <string name="notification_text">Ready for directions...</string>
 </resources>
