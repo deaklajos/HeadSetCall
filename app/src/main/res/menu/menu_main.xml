@@ -3,8 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="vfv9w6.headsetcall.MainActivity">
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:id="@+id/action_start"
+        android:title="@string/action_start"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_stop"
+        android:title="@string/action_stop"
         app:showAsAction="never" />
 </menu>

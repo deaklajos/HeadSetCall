@@ -49,9 +49,8 @@ class MainActivity : AppCompatActivity(), ContactRecyclerViewAdapter.ContactItem
         private const val SELECT_PHONE_NUMBER = 1
     }
 
-    //TODO not lateinit
+    //TODO  maybe not lateinit
     private lateinit var adapter: ContactRecyclerViewAdapter
-    private lateinit var mediaSession: MediaSession
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,41 +74,6 @@ class MainActivity : AppCompatActivity(), ContactRecyclerViewAdapter.ContactItem
             intent.type = ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE
             startActivityForResult(intent, SELECT_PHONE_NUMBER)
         }
-
-        val callback = object : MediaSession.Callback() {
-
-            override fun onPlay() {
-                Toast.makeText(this@MainActivity, "GITGUDSCRUB", Toast.LENGTH_LONG).show()
-            }
-
-            override fun onPause() {
-                super.onPause()
-                Toast.makeText(this@MainActivity, "GITGUDSCRUB", Toast.LENGTH_LONG).show()
-            }
-
-            override fun onStop() {
-                super.onStop()
-                Toast.makeText(this@MainActivity, "GITGUDSCRUB", Toast.LENGTH_LONG).show()
-            }
-        }
-
-        mediaSession = MediaSession(applicationContext, "MYMS")
-
-        //TODO remove this!
-        mediaSession.setFlags(
-                MediaSession.FLAG_HANDLES_MEDIA_BUTTONS or MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS)
-        mediaSession.setCallback(callback)
-
-        mediaSession.setPlaybackState(
-                 PlaybackState.Builder().setActions(PlaybackState.ACTION_PLAY or
-                         PlaybackState.ACTION_PAUSE or
-                        PlaybackState.ACTION_PLAY_PAUSE)
-        .setState(PlaybackState.STATE_PLAYING,
-                0,
-                1f).build())
-        mediaSession.isActive = true
-
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -170,12 +134,12 @@ class MainActivity : AppCompatActivity(), ContactRecyclerViewAdapter.ContactItem
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
+        when(item.itemId){
+            R.id.action_start->
+                startService(Intent(this, CallerService::class.java))
+            R.id.action_stop->
+                stopService(Intent(this, CallerService::class.java))
         }
+        return false
     }
 }
