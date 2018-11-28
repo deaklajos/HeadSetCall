@@ -1,15 +1,16 @@
 package vfv9w6.headsetcall.model
 
+import android.os.Handler
 import java.util.*
 import kotlin.concurrent.schedule
+import kotlin.concurrent.timerTask
 
 class PressCounter(private val interval: Long,
                    private val doAfterInterval: Runnable)
 {
-    private val timer = Timer()
+    private val handler = Handler()
     private var lastTime: Long = 0
     private var pressCount: Int = 0
-    private var lastTimerTask: TimerTask? = null
 
     fun getPressCount() = pressCount
 
@@ -22,9 +23,9 @@ class PressCounter(private val interval: Long,
         else
             pressCount = 1
 
-        //TODO this not works!!!
-        timer.cancel()
-        timer.schedule(interval){ doAfterInterval.run() }
+        handler.removeCallbacksAndMessages(null)
+        handler.postDelayed(doAfterInterval, interval)
+
         lastTime = currentTime
     }
 }
