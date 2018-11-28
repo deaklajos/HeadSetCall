@@ -9,6 +9,7 @@ class PressCounter(private val interval: Long,
     private val timer = Timer()
     private var lastTime: Long = 0
     private var pressCount: Int = 0
+    private var lastTimerTask: TimerTask? = null
 
     fun getPressCount() = pressCount
 
@@ -21,6 +22,7 @@ class PressCounter(private val interval: Long,
         else
             pressCount = 1
 
+        //TODO this not works!!!
         timer.cancel()
         timer.schedule(interval){ doAfterInterval.run() }
         lastTime = currentTime
