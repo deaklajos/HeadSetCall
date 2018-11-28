@@ -3,29 +3,46 @@ package vfv9w6.headsetcall
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
-import android.os.IBinder
-import android.widget.Toast
-import vfv9w6.headsetcall.model.PressCounter
-import android.graphics.Color
 import android.os.Build
+import android.os.IBinder
+import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.OnInitListener
 import android.support.annotation.RequiresApi
 import android.support.v4.app.NotificationCompat
+import android.widget.Toast
+import com.orm.SugarRecord
+import com.orm.util.NamingHelper
+import vfv9w6.headsetcall.data.Contact
+import vfv9w6.headsetcall.model.PressCounter
+import java.util.*
 
 
 //TODO this maybe gets closed after some time.
 class CallerService : Service() {
 
     private lateinit var mediaSession: MediaSession
-    private val pressCounter = PressCounter(500, Runnable{ callCounted()})
+    private val pressCounter = PressCounter(1000, Runnable{ callCounted()})
+    private var textToSpeech: TextToSpeech? = null
 
     override fun onBind(intent: Intent): IBinder {
         TODO("Return the communication channel to the service.")
     }
 
     private fun callCounted() {
-        Toast.makeText(applicationContext, "Calling: " + pressCounter.getPressCount(), Toast.LENGTH_SHORT).show()
+
+        val list = SugarRecord.find(Contact::class.java,
+                NamingHelper.toSQLNameDefault("pressCount") + " = ? ",
+                pressCounter.getPressCount().toString())
+        if(list.size > 0)
+        {
+            val contact = list[0]
+            textToSpeech?.speak("Calling " + contact.name, TextToSpeech.QUEUE_FLUSH, null, "")
+        }
+        else
+            textToSpeech?.speak("Beep!", TextToSpeech.QUEUE_FLUSH, null, "")
     }
 
     override fun onCreate() {
@@ -33,6 +50,12 @@ class CallerService : Service() {
 
         startForeground()
 
+        textToSpeech = TextToSpeech(applicationContext, OnInitListener {status ->
+            if (status != TextToSpeech.ERROR)
+                textToSpeech?.language = Locale.UK
+        })
+
+        //TODO refactor yaalls and extract!
         Toast.makeText(applicationContext, "imStartedYall", Toast.LENGTH_SHORT).show()
 
         val callback = object : MediaSession.Callback() {
@@ -45,16 +68,18 @@ class CallerService : Service() {
 
         mediaSession.setCallback(callback)
         mediaSession.setPlaybackState(
-                PlaybackState.Builder().setActions(PlaybackState.ACTION_PLAY or
+                PlaybackState.Builder().setActions(
+                        PlaybackState.ACTION_PLAY or
                         PlaybackState.ACTION_PAUSE or
                         PlaybackState.ACTION_PLAY_PAUSE)
                         .setState(PlaybackState.STATE_PLAYING,
                                 0,
                                 1f).build())
+
+        //Although deprecated my phone still needs it.
+        mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS or
+                MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS)
         mediaSession.isActive = true
-
-
-        //pressCounter.press()
     }
 
     private fun startForeground() {
@@ -90,6 +115,10 @@ class CallerService : Service() {
     }
 
     override fun onDestroy() {
+
+        textToSpeech?.stop()
+        textToSpeech?.shutdown()
+
         mediaSession.release()
         Toast.makeText(applicationContext, "imDeadYall", Toast.LENGTH_SHORT).show()
         super.onDestroy()
