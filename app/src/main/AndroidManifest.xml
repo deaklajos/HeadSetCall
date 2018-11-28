@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="vfv9w6.headsetcall">
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <!-- TODO do something about this warning -->
     <application
         android:allowBackup="true"
