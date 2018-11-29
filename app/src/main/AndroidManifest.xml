@@ -5,7 +5,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
-    <!-- TODO do something about this warning -->
     <application
         android:allowBackup="true"
         android:name="HeadSetCallApplication"
@@ -30,6 +29,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:launchMode = "singleTask"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
