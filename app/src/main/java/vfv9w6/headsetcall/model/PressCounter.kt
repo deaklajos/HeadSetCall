@@ -1,9 +1,6 @@
 package vfv9w6.headsetcall.model
 
 import android.os.Handler
-import java.util.*
-import kotlin.concurrent.schedule
-import kotlin.concurrent.timerTask
 
 class PressCounter(private val interval: Long,
                    private val doAfterInterval: Runnable)

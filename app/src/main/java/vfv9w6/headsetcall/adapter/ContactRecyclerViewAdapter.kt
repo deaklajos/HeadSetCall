@@ -1,34 +1,24 @@
 package vfv9w6.headsetcall.adapter
 
-import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.orm.SugarContext
-import com.orm.SugarRecord
 import kotlinx.android.synthetic.main.contact_row.view.*
 import vfv9w6.headsetcall.R
 import vfv9w6.headsetcall.data.Contact
-import java.util.*
+import kotlin.concurrent.thread
 
-class ContactRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<ContactRecyclerViewAdapter.ViewHolder>() {
-    private val contactList: ArrayList<Contact>
-    val availablePresses: ArrayList<Int>
+class ContactRecyclerViewAdapter(private val contactList: ArrayList<Contact>) : RecyclerView.Adapter<ContactRecyclerViewAdapter.ViewHolder>() {
+
+    val availablePresses: ArrayList<Int> = ArrayList(listOf(1, 2, 3, 4, 5, 6, 7, 8, 9))
     var itemClickListener: ContactItemClickListener? = null
 
     init {
-        //TODO should call somewhere else maybe
-        SugarContext.init(context) //TODO call terminate too
-        contactList = ArrayList(SugarRecord.listAll(Contact::class.java))
-        availablePresses = ArrayList()
-        availablePresses.addAll(listOf(1, 2, 3, 4, 5, 6, 7, 8, 9))
         contactList.forEach {
             availablePresses.remove(it.pressCount) }
     }
-
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -50,7 +40,7 @@ class ContactRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<Contac
         val size = contactList.size
         contactList.add(contact)
         availablePresses.remove(contact.pressCount)
-        contact.save()
+        thread { contact.save() }
         notifyItemInserted(size)
     }
 
@@ -62,19 +52,14 @@ class ContactRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<Contac
             availablePresses.remove(contact.pressCount)
             availablePresses.add(previousPressCount)
             availablePresses.sort()
-            contact.save()
+            thread { contact.save() }
             notifyItemChanged(contactList.indexOf(contact))
         }
     }
 
-//    fun addAll(contacts: List<Contact>) {
-//        val size = contactList.size
-//        contactList += contacts
-//        notifyItemRangeInserted(size, contacts.size)
-//    }
-
-    fun deleteRow(position: Int) {
-        contactList[position].delete()
+    private fun deleteRow(position: Int) {
+        val contact = contactList[position]
+        thread { contact.delete() }
         availablePresses.add(contactList[position].pressCount)
         availablePresses.sort()
         contactList.removeAt(position)

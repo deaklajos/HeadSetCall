@@ -8,6 +8,7 @@
     <!-- TODO do something about this warning -->
     <application
         android:allowBackup="true"
+        android:name="HeadSetCallApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -33,6 +34,9 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
+                <!--This removes the huge warning-->
+                <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -40,7 +44,7 @@
         <service
             android:name=".CallerService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
     </application>
 
 </manifest>

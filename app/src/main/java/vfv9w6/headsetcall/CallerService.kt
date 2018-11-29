@@ -24,12 +24,14 @@ import vfv9w6.headsetcall.data.Contact
 import vfv9w6.headsetcall.model.PressCounter
 import java.util.*
 import com.intentfilter.androidpermissions.PermissionManager
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import java.util.Collections.singleton
 
 
 class CallerService : Service() {
 
-    private lateinit var mediaSession: MediaSession
+    private var mediaSession: MediaSession? = null
     private val pressCounter = PressCounter(1000, Runnable{ callCounted()})
     private var textToSpeech: TextToSpeech? = null
     private var contact: Contact? = null
@@ -60,11 +62,20 @@ class CallerService : Service() {
     }
 
     private fun callCounted() {
+        doAsync {
+            val list = SugarRecord.find(Contact::class.java,
+                    NamingHelper.toSQLNameDefault("pressCount") + " = ? ",
+                    pressCounter.getPressCount().toString())
 
-        val list = SugarRecord.find(Contact::class.java,
-                NamingHelper.toSQLNameDefault("pressCount") + " = ? ",
-                pressCounter.getPressCount().toString())
-        if(list.size > 0)
+            uiThread {
+                afterFoundInDb(list)
+            }
+        }
+    }
+
+    private fun afterFoundInDb(list: List<Contact>)
+    {
+        if(list.isNotEmpty())
         {
             contact = list[0]
             textToSpeech?.speak(getString(R.string.speech_calling) + contact!!.name,
@@ -76,7 +87,6 @@ class CallerService : Service() {
             textToSpeech?.speak(getString(R.string.speech_error),
                     TextToSpeech.QUEUE_FLUSH, null, "")
         }
-
     }
 
     override fun onCreate() {
@@ -108,20 +118,20 @@ class CallerService : Service() {
 
         mediaSession = MediaSession(applicationContext, "MYMS")
 
-        mediaSession.setCallback(callback)
-        mediaSession.setPlaybackState(
-                PlaybackState.Builder().setActions(
-                        PlaybackState.ACTION_PLAY or
-                        PlaybackState.ACTION_PAUSE or
-                        PlaybackState.ACTION_PLAY_PAUSE)
-                        .setState(PlaybackState.STATE_PLAYING,
-                                0,
-                                1f).build())
-
-        //Although deprecated my phone still needs it.
-        mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS or
-                MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS)
-        mediaSession.isActive = true
+        mediaSession?.apply {
+            setCallback(callback)
+            setPlaybackState(
+                    PlaybackState.Builder().setActions(
+                            PlaybackState.ACTION_PLAY or
+                                    PlaybackState.ACTION_PAUSE or
+                                    PlaybackState.ACTION_PLAY_PAUSE)
+                            .setState(PlaybackState.STATE_PLAYING,
+                                    0,
+                                    1f).build())
+            setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS or
+                    MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS)
+            isActive = true
+        }
     }
 
     private fun startForeground() {
@@ -161,7 +171,7 @@ class CallerService : Service() {
             stop()
             shutdown()}
 
-        mediaSession.release()
+        mediaSession?.release()
         Toast.makeText(applicationContext, getString(R.string.service_destroyed), Toast.LENGTH_SHORT).show()
         super.onDestroy()
     }
